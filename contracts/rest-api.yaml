@@ -1,0 +1,43 @@
+openapi: 3.0.3
+info:
+  title: ORCS REST Contract
+  version: 1.0.0
+paths:
+  /auth/register:
+    post: {}
+  /auth/login:
+    post: {}
+  /auth/currentuser:
+    get: {}
+  /auth/logout:
+    get: {}
+  /user/getAllUsers:
+    get: {}
+  /user/getUser/{id}:
+    get: {}
+  /user/updateUser/{id}:
+    post: {}
+  /user/deleteUser/{id}:
+    post: {}
+  /policy/getPolicies:
+    get: {}
+  /policy/getPolicy/{id}:
+    get: {}
+  /policy/getRolePolicy/{role}:
+    get: {}
+  /policy/getRoleWisePolicy:
+    get: {}
+  /policy/getFavoriteProcesses:
+    get: {}
+  /policy/setPolicy:
+    post: {}
+  /policy/updatePolicy:
+    post: {}
+  /policy/updateSinglePolicy:
+    post: {}
+  /policy/addSingleProcess:
+    post: {}
+  /policy/deletePolicy/{id}:
+    post: {}
+  /logs:
+    get: {}
