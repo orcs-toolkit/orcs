@@ -374,6 +374,9 @@ func (h *Handler) getLogs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	if limit > 500 {
+		limit = 500
+	}
 	logs, _ := h.store.GetLogs(r.Context(), limit)
 	writeJSON(w, http.StatusOK, logs)
 }

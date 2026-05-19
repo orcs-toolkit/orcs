@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/orcs-toolkit/orcs/services/go-api/internal/platform"
@@ -43,14 +44,51 @@ func RequireLogin(secret string, requireAdmin bool) func(http.Handler) http.Hand
 }
 
 func WithCORS(next http.Handler) http.Handler {
+	allowedOrigins := parseAllowedOrigins(os.Getenv("ORCS_ALLOWED_ORIGINS"))
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		origin := r.Header.Get("Origin")
+		if isAllowedOrigin(origin, allowedOrigins) {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+		} else if len(allowedOrigins) > 0 {
+			w.Header().Set("Access-Control-Allow-Origin", allowedOrigins[0])
+		}
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type,Authorization")
 		w.Header().Set("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+		w.Header().Set("Vary", "Origin")
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
 		next.ServeHTTP(w, r)
 	})
+}
+
+func parseAllowedOrigins(raw string) []string {
+	if strings.TrimSpace(raw) == "" {
+		return []string{"http://localhost:3000", "http://localhost:3001"}
+	}
+	parts := strings.Split(raw, ",")
+	out := make([]string, 0, len(parts))
+	for _, part := range parts {
+		trimmed := strings.TrimSpace(part)
+		if trimmed != "" {
+			out = append(out, trimmed)
+		}
+	}
+	if len(out) == 0 {
+		return []string{"http://localhost:3000", "http://localhost:3001"}
+	}
+	return out
+}
+
+func isAllowedOrigin(origin string, allowed []string) bool {
+	if origin == "" {
+		return false
+	}
+	for _, allowedOrigin := range allowed {
+		if strings.EqualFold(origin, allowedOrigin) {
+			return true
+		}
+	}
+	return false
 }

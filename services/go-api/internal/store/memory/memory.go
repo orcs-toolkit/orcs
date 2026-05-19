@@ -255,11 +255,14 @@ func (s *Store) GetFavoriteProcesses(_ context.Context) ([]string, error) {
 func (s *Store) GetLogs(_ context.Context, limit int) ([]domain.LogEntry, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
+	const maxLogResponse = 500
+	if limit > maxLogResponse {
+		limit = maxLogResponse
+	}
 	if limit <= 0 || limit > len(s.logs) {
 		limit = len(s.logs)
 	}
-	out := make([]domain.LogEntry, limit)
-	copy(out, s.logs[:limit])
+	out := append([]domain.LogEntry(nil), s.logs[:limit]...)
 	return out, nil
 }
 
